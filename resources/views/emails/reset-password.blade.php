@@ -1,20 +1,29 @@
+{{-- resources/views/emails/auth/reset-password.blade.php --}}
 @component('mail::message')
-# Reset Your Password
+# Hello {{ $userName }}! 👋
 
-You are receiving this email because we received a password reset request for your account.
+You're receiving this email because you requested a password reset for your **TeamBoard** account.
 
-@component('mail::button', ['url' => $resetUrl])
-Reset Password
+@component('mail::button', ['url' => $resetUrl, 'color' => 'primary'])
+🔐 Reset My Password
 @endcomponent
 
-This password reset link will expire in {{ config('auth.passwords.users.expire', 60) }} minutes.
+**Important Security Information:**
+- This reset link expires in **{{ $expiresIn }} minutes**
+- If you didn't request this reset, please ignore this email
+- Your password won't change until you click the link above
 
-If you did not request a password reset, no further action is required.
+@component('mail::panel')
+**Security Tip:** Always verify the URL starts with your TeamBoard domain before entering your new password.
+@endcomponent
 
-Thanks,<br>
-{{ config('app.name') }}
+Need help? Contact our support team.
+
+Best regards,<br>
+The **TeamBoard** Team
 
 @component('mail::subcopy')
-If you're having trouble clicking the "Reset Password" button, copy and paste the URL below into your web browser: {{ $resetUrl }}
+If you're having trouble clicking the "Reset My Password" button, copy and paste this URL into your web browser:<br>
+{{ $resetUrl }}
 @endcomponent
 @endcomponent
