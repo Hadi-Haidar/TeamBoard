@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('board_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('invited_by')->constrained()->onDelete('cascade');
+            $table->foreignId('invited_by')->constrained('users')->onDelete('cascade');
             $table->string('email')->nullable();
             $table->enum('role',['owner','member','viewer']);
             $table->enum('status',['pending','active','declined']);
