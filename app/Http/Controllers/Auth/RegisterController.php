@@ -116,7 +116,7 @@ final class RegisterController extends Controller
      */
     private function sendVerificationEmail(User $user): void
     {
-        Mail::to($user->email)->send(new VerificationCode($user->verification_code));
+        Mail::to($user->email)->send(new VerificationCode($user, $user->verification_code));
     }
 
     /**

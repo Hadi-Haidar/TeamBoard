@@ -236,7 +236,7 @@ final class VerificationController extends Controller
             $user->verification_code_expires_at = now()->addMinutes(self::VERIFICATION_CODE_EXPIRY_MINUTES);
             $user->save();
 
-            Mail::to($user->email)->send(new VerificationCode($verificationCode));
+            Mail::to($user->email)->send(new VerificationCode($user, $verificationCode));
         });
     }
 
