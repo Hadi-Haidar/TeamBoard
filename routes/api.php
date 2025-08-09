@@ -8,7 +8,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\GoogleController;
-
+use App\Http\Controllers\User\ProfileController;
 // Add this middleware to routes that need verified email
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Protected routes that require verified email
@@ -36,3 +36,10 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 // Route::post('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 //for testing
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+// User Profile routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/user/confirm-email-change', [ProfileController::class, 'confirmEmailChange']);
+});

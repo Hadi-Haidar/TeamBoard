@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('google_id')->nullable();
             $table->string('avatar')->nullable();
             $table->boolean('is_google_user')->default(false);
+            $table->string('pending_email')->nullable();
             $table->timestamps();
         });
 

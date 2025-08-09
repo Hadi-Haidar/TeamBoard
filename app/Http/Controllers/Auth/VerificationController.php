@@ -227,7 +227,7 @@ final class VerificationController extends Controller
     /**
      * Generate and send new verification code.
      */
-    private function generateAndSendNewVerificationCode(User $user): void
+    public function generateAndSendNewVerificationCode(User $user): void
     {
         DB::transaction(function () use ($user) {
             $verificationCode = $this->generateVerificationCode();
@@ -243,7 +243,7 @@ final class VerificationController extends Controller
     /**
      * Generate a secure verification code.
      */
-    private function generateVerificationCode(): string
+    public function generateVerificationCode(): string
     {
         $min = 10 ** (self::VERIFICATION_CODE_LENGTH - 1);
         $max = (10 ** self::VERIFICATION_CODE_LENGTH) - 1;
