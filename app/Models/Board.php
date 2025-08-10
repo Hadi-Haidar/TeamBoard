@@ -71,7 +71,7 @@ class Board extends Model
      */
     public function tasks()
     {
-        return $this->hasManyThrough(Task::class, ListModel::class);
+        return $this->hasManyThrough(Task::class, ListModel::class, 'board_id', 'list_id');
     }
 
     /**
@@ -108,6 +108,12 @@ class Board extends Model
      */
     public function getUserRole(User $user): ?string
     {
+        // Board owner always has 'owner' role
+        if ($this->isOwnedBy($user)) {
+            return 'owner';
+        }
+        
+        // Check membership table for other roles
         $membership = $this->members()
             ->where('user_id', $user->id)
             ->where('status', 'active')
