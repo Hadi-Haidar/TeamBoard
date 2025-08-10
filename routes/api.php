@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\BoardController;
+
 // Add this middleware to routes that need verified email
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Protected routes that require verified email
@@ -44,4 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/confirm-email-change', [ProfileController::class, 'confirmEmailChange']);
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+});
+
+// Board Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/boards', [BoardController::class, 'index']);
+    Route::post('/boards', [BoardController::class, 'store']);
+    Route::get('/boards/{id}', [BoardController::class, 'show']);
+    Route::put('/boards/{id}', [BoardController::class, 'update']);
+    Route::delete('/boards/{id}', [BoardController::class, 'destroy']);
 });
