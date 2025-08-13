@@ -10,7 +10,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\BoardController;
-
+use App\Http\Controllers\User\BoardMemberController;
 // Add this middleware to routes that need verified email
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Protected routes that require verified email
@@ -56,3 +56,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/boards/{id}', [BoardController::class, 'update']);
     Route::delete('/boards/{id}', [BoardController::class, 'destroy']);
 });
+
+// Board Member Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/boards/{boardId}/members', [BoardMemberController::class, 'index']);
+    Route::post('/boards/{boardId}/members', [BoardMemberController::class, 'invite']);
+    Route::put('/boards/{boardId}/members/{memberId}', [BoardMemberController::class, 'update']);
+    Route::delete('/boards/{boardId}/members/{memberId}', [BoardMemberController::class, 'destroy']);
+});
+// these routes for accepting and declining invitations (they don't need auth since token provides authentication)
+Route::get('/invitations/{token}', [BoardMemberController::class, 'showInvitation']);
+Route::post('/invitations/{token}/accept', [BoardMemberController::class, 'acceptInvitation']);
+Route::post('/invitations/{token}/decline', [BoardMemberController::class, 'declineInvitation']);

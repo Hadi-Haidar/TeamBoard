@@ -141,6 +141,7 @@ class BoardMember extends Model
             'status' => 'active',
             'invitation_token' => null,
             'invitation_expires_at' => null,
+            'email' => null,               // clear invite email after joining
         ]);
     }
 
@@ -157,6 +158,7 @@ class BoardMember extends Model
             'status' => 'declined',
             'invitation_token' => null,
             'invitation_expires_at' => null,
+            'email' => null,               // clear invite email after decline
         ]);
     }
 
@@ -234,7 +236,7 @@ class BoardMember extends Model
             return null;
         }
 
-        return url("/invitations/{$this->invitation_token}");
+        return url("api/invitations/{$this->invitation_token}");
     }
 
     // ==== SCOPES ====
@@ -357,4 +359,20 @@ class BoardMember extends Model
     {
         return self::expired()->delete();
     }
+/**
+ * Clean up old declined or expired invitations
+ */
+public static function cleanupOldInvitations(int $days = 15): int
+{
+    $cutoffDate = now()->subDays($days);
+    
+    $declined = self::where('status', 'declined')
+        ->where('updated_at', '<', $cutoffDate);
+        
+    $expired = self::where('status', 'pending')
+        ->where('invitation_expires_at', '<', $cutoffDate);
+    
+    return $declined->delete() + $expired->delete();
+
+}
 }
