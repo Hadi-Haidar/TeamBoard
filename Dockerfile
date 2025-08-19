@@ -24,6 +24,9 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+# Copy SSL certificate
+COPY ssl/isrgrootx1.pem /var/www/html/ssl/isrgrootx1.pem
+
 # Install dependencies and build
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
