@@ -20,12 +20,15 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost:3000',      // Keep for local development
-        'http://127.0.0.1:3000',      // Keep for local development  
-        'https://team-board-frontend-seven.vercel.app', // Your actual Vercel domain
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://team-board-frontend-seven.vercel.app',
+        'https://team-board-frontend-cvcdw02xq-hadis-projects-3e6c26c1.vercel.app',
     ],
-
-    'allowed_origins_patterns' => [],
+    
+    'allowed_origins_patterns' => [
+        '/^https:\/\/team-board-frontend.*\.vercel\.app$/',
+    ],
 
     'allowed_headers' => ['*'],
 
