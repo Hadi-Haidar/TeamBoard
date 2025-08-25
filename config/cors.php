@@ -20,8 +20,9 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
+        'http://localhost:3000',      // Keep for local development
+        'http://127.0.0.1:3000',      // Keep for local development  
+        'https://team-board-frontend-seven.vercel.app', // Your actual Vercel domain
     ],
 
     'allowed_origins_patterns' => [],
