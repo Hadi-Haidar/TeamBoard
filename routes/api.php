@@ -26,18 +26,18 @@ Route::post('/register', [RegisterController::class, 'register']);
 // Verification routes
 Route::post('/verify-email', [VerificationController::class, 'verifyEmail']);
 Route::post('/resend-verification', [VerificationController::class, 'resendVerificationCode']);
-Route::post('/verification-status', [VerificationController::class, 'checkVerificationStatus']);
+// Route::post('/verification-status', [VerificationController::class, 'checkVerificationStatus']);
 // Login routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
 // Forgot Password and Reset Password routes
 Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('reset-password', [ResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
 Route::post('reset-password', [ResetPasswordController::class, 'reset']) ->name('password.reset');
 // Google Authentication routes
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
-// Route::post('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-//for testing
-Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+// Google OAuth callback needs session middleware for web authentication
+Route::middleware(['web'])->get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 // User Profile routes (requires authentication)
 Route::middleware('auth:sanctum')->group(function () {

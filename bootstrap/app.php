@@ -12,7 +12,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Add CORS middleware to API routes
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+        
+        // Handle CORS
+        $middleware->use([
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+        
+        // Alias middleware
+        $middleware->alias([
+            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

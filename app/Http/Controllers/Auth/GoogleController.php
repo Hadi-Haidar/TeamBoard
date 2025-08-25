@@ -17,6 +17,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+use Illuminate\Http\RedirectResponse;
 
 final class GoogleController extends Controller
 {
@@ -34,16 +35,21 @@ final class GoogleController extends Controller
     /**
      * Handle Google callback and authenticate the user.
      */
-    public function handleGoogleCallback(Request $request): JsonResponse
+    public function handleGoogleCallback(Request $request): JsonResponse|RedirectResponse
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
             
             if (!$this->isValidGoogleUser($googleUser)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid user data from Google'
-                ], Response::HTTP_BAD_REQUEST);
+                if ($this->isApiRequest($request)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Invalid user data from Google'
+                    ], Response::HTTP_BAD_REQUEST);
+                } else {
+                    // For web requests, redirect to frontend with error
+                    return redirect(env('FRONTEND_URL') . '/signin?google_auth=error&message=' . urlencode('Invalid user data from Google'));
+                }
             }
 
             $user = $this->findOrCreateUser($googleUser);
@@ -57,11 +63,16 @@ final class GoogleController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Authentication failed. Please try again.'
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            //for errors 
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Authentication failed. Please try again.'
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            } else {
+                // For web requests, redirect to frontend with error
+                return redirect(env('FRONTEND_URL') . '/signin?google_auth=error&message=' . urlencode('Authentication failed. Please try again.'));
+            }
         }
     }
 
@@ -123,6 +134,16 @@ final class GoogleController extends Controller
      */
     private function isApiRequest(Request $request): bool
     {
+        // Google OAuth callback should always be treated as a web request
+        // because it comes from Google's redirect, not from frontend AJAX
+        if ($request->is('api/auth/google/callback')) {
+            return false;
+        }
+        
+        if ($request->header('X-XSRF-TOKEN')) {
+            return false;
+        }
+        
         return $request->expectsJson() || $request->is('api/*');
     }
 
@@ -144,18 +165,18 @@ final class GoogleController extends Controller
     }
 
     /**
-     * Return web Google response with session.
+     * Return web Google response with session and redirect to frontend.
      */
-    private function webGoogleResponse(User $user, Request $request): JsonResponse
+    private function webGoogleResponse(User $user, Request $request): RedirectResponse
     {
-        Auth::login($user, false); // Google users don't need "remember me"
+        // For web requests, use session-based authentication (consistent with regular login)
+        Auth::login($user, true); // true for "remember me" functionality
         $request->session()->regenerate();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User logged in successfully via Google',
-            'user' => $user->only(self::USER_FIELDS),
-            'email_verified' => true
-        ], Response::HTTP_OK);
+        
+        // Ensure session is saved immediately
+        $request->session()->save();
+        
+        // Redirect to frontend with success indicator
+        return redirect(env('FRONTEND_URL') . '/dashboard?google_auth=success');
     }
 }

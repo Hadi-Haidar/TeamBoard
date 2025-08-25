@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\RedirectResponse;//this is used to redirect the user to the reset password page
 
 final class ResetPasswordController extends Controller
 {
@@ -41,6 +42,27 @@ final class ResetPasswordController extends Controller
             'message' => 'Password has been reset successfully.',
             'status' => 'success'
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Show the password reset form by redirecting to frontend. this is used to redirect the user to the reset password page
+     */
+    public function showResetForm(Request $request): RedirectResponse
+    {
+        $token = $request->query('token');
+        $email = $request->query('email');
+        
+        // Validate required parameters
+        if (!$token || !$email) {
+            return redirect(env('FRONTEND_URL') . '/forgot-password')
+                ->with('error', 'Invalid reset link. Please request a new password reset.');
+        }
+        
+        // Redirect to React frontend with token and email
+        return redirect(env('FRONTEND_URL') . '/reset-password?' . http_build_query([
+            'token' => $token,
+            'email' => $email
+        ]));
     }
 
     /**

@@ -145,6 +145,10 @@ final class LoginController extends Controller
      */
     private function isApiRequest(Request $request): bool
     {
+        if ($request->header('X-XSRF-TOKEN')) {
+            return false;
+        }
+        
         return $request->expectsJson() || $request->is('api/*');
     }
 
