@@ -95,3 +95,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/tasks/{taskId}/assign', [TaskController::class, 'assign']);
 });
 
+// Comment Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/tasks/{taskId}/comments', [CommentController::class, 'index']);      // Get all comments
+    Route::post('/tasks/{taskId}/comments', [CommentController::class, 'store']);     // Create comment (REAL-TIME)
+    Route::put('/comments/{commentId}', [CommentController::class, 'update']);        // Update comment (REAL-TIME)
+    Route::delete('/comments/{commentId}', [CommentController::class, 'destroy']);    // Delete comment (REAL-TIME)
+});
+
