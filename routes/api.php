@@ -11,6 +11,10 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\BoardController;
 use App\Http\Controllers\User\BoardMemberController;
+use App\Http\Controllers\User\ListController;
+use App\Http\Controllers\User\TaskController;
+use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\User\AttachmentController;
 // Add this middleware to routes that need verified email
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Protected routes that require verified email
@@ -68,3 +72,13 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/invitations/{token}', [BoardMemberController::class, 'showInvitation']);
 Route::post('/invitations/{token}/accept', [BoardMemberController::class, 'acceptInvitation']);
 Route::post('/invitations/{token}/decline', [BoardMemberController::class, 'declineInvitation']);
+
+// List Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/boards/{boardId}/lists', [ListController::class, 'index']);
+    Route::post('/boards/{boardId}/lists', [ListController::class, 'store']);
+    Route::get('/lists/{listId}', [ListController::class, 'show']);
+    Route::put('/lists/{listId}', [ListController::class, 'update']);
+    Route::delete('/lists/{listId}', [ListController::class, 'destroy']);
+    Route::put('/lists/{listId}/position', [ListController::class, 'updatePosition']); 
+});
