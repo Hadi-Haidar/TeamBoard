@@ -103,3 +103,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/comments/{commentId}', [CommentController::class, 'destroy']);    // Delete comment (REAL-TIME)
 });
 
+// Attachment Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/tasks/{taskId}/attachments', [AttachmentController::class, 'index']);
+    Route::post('/tasks/{taskId}/attachments', [AttachmentController::class, 'store']);
+    Route::get('/attachments/{attachmentId}', [AttachmentController::class, 'show']);
+    Route::get('/attachments/{attachmentId}/download', [AttachmentController::class, 'download'])->name('attachments.download');
+    Route::delete('/attachments/{attachmentId}', [AttachmentController::class, 'destroy']);
+});
