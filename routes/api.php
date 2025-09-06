@@ -82,3 +82,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/lists/{listId}', [ListController::class, 'destroy']);
     Route::put('/lists/{listId}/position', [ListController::class, 'updatePosition']); 
 });
+
+// Task Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/lists/{listId}/tasks', [TaskController::class, 'index']);
+    Route::post('/lists/{listId}/tasks', [TaskController::class, 'store']);
+    Route::get('/tasks/{taskId}', [TaskController::class, 'show']);
+    Route::put('/tasks/{taskId}', [TaskController::class, 'update']);
+    Route::delete('/tasks/{taskId}', [TaskController::class, 'destroy']);
+    Route::put('/tasks/{taskId}/move', [TaskController::class, 'move']);
+    Route::put('/tasks/{taskId}/position', [TaskController::class, 'updatePosition']);
+    Route::put('/tasks/{taskId}/assign', [TaskController::class, 'assign']);
+});
+
