@@ -15,6 +15,13 @@ use App\Http\Controllers\User\ListController;
 use App\Http\Controllers\User\TaskController;
 use App\Http\Controllers\User\CommentController;
 use App\Http\Controllers\User\AttachmentController;
+use App\Http\Controllers\User\ActivityController;  
+use App\Http\Controllers\User\NotificationController;
+use App\Http\Controllers\User\SearchController;
+use App\Http\Controllers\User\CalendarController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\TemplateController;
+
 // Add this middleware to routes that need verified email
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Protected routes that require verified email
@@ -110,4 +117,71 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/attachments/{attachmentId}', [AttachmentController::class, 'show']);
     Route::get('/attachments/{attachmentId}/download', [AttachmentController::class, 'download'])->name('attachments.download');
     Route::delete('/attachments/{attachmentId}', [AttachmentController::class, 'destroy']);
+});
+
+// Activity Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    // Board activity feed
+    Route::get('/boards/{boardId}/activities', [ActivityController::class, 'index']);        // Get board activities
+
+    Route::get('/boards/{boardId}/activities/stats', [ActivityController::class, 'boardStats']); // Board activity stats
+    
+    // Individual activity
+    Route::get('/activities/{activityId}', [ActivityController::class, 'show']);             // Get activity details
+    Route::delete('/activities/{activityId}', [ActivityController::class, 'destroy']);       // Delete activity (owner)
+    
+    // User activity feed
+    Route::get('/user/activities', [ActivityController::class, 'userFeed']);                 // Get user's activity feed
+    Route::get('/user/activities/stats', [ActivityController::class, 'userStats']);          // User activity stats
+});
+
+// Notification Management routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    // Basic CRUD
+    Route::get('/notifications', [NotificationController::class, 'index']);                    // Get user's notifications
+    Route::get('/notifications/stats', [NotificationController::class, 'stats']);              // Get notification stats
+    Route::get('/notifications/{notificationId}', [NotificationController::class, 'show']);    // Get specific notification
+    Route::delete('/notifications/{notificationId}', [NotificationController::class, 'destroy']); // Delete notification
+    
+    // Notification actions (REAL-TIME)
+    Route::put('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);        // Mark as read (REAL-TIME)
+    Route::put('/notifications/{notificationId}/unread', [NotificationController::class, 'markAsUnread']);    // Mark as unread (REAL-TIME)
+    Route::put('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);              // Mark all as read (REAL-TIME)
+    Route::put('/notifications/{notificationId}/snooze', [NotificationController::class, 'snooze']);          // Snooze notification (REAL-TIME)
+    
+    // Special invitation actions (REAL-TIME)
+    Route::put('/notifications/{notificationId}/accept', [NotificationController::class, 'acceptInvitation']); // Accept board invitation (REAL-TIME)
+    Route::put('/notifications/{notificationId}/decline', [NotificationController::class, 'declineInvitation']); // Decline board invitation (REAL-TIME)
+});
+
+// Search routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/search', [SearchController::class, 'search']);                          // Global search
+    Route::get('/search/quick', [SearchController::class, 'quickSearch']);              // Quick search (autocomplete)
+    Route::get('/search/suggestions', [SearchController::class, 'suggestions']);        // Search suggestions
+    Route::get('/boards/{boardId}/search', [SearchController::class, 'searchInBoard']); // Search within specific board
+});
+
+// Calendar routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/calendar', [CalendarController::class, 'index']);                       // Calendar view of tasks
+    Route::get('/calendar/date/{date}', [CalendarController::class, 'getTasksForDate']); // Tasks for specific date
+    Route::get('/calendar/upcoming', [CalendarController::class, 'upcomingTasks']);      // Upcoming tasks (next 7 days)
+    Route::get('/calendar/overdue', [CalendarController::class, 'overdueTasks']);        // Overdue tasks
+});
+
+// Dashboard routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);                     // Main dashboard overview
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);               // Detailed user statistics
+    Route::get('/dashboard/activity', [DashboardController::class, 'activity']);         // Recent activity feed
+    Route::get('/dashboard/tasks', [DashboardController::class, 'myTasks']);             // User's assigned tasks
+});
+
+// Template routes (requires authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/templates', [TemplateController::class, 'index']);                      // Browse all templates
+    Route::get('/templates/{templateId}', [TemplateController::class, 'show']);          // Get specific template
+    Route::post('/templates/{templateId}/create-board', [TemplateController::class, 'createBoard']); // Create board from template
+    Route::post('/boards/{boardId}/save-as-template', [TemplateController::class, 'saveAsTemplate']); // Save board as template
 });

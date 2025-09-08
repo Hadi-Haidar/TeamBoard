@@ -138,6 +138,10 @@ class Activity extends Model
     {
         $description = $this->description;
         
+        // TODO: Add route generation when frontend routes are ready
+        // For now, just return the plain description to avoid route errors
+        
+        /*
         // Replace task titles with links
         if ($this->subject_type === Task::class && $this->subject) {
             $taskTitle = $this->subject->title;
@@ -159,6 +163,7 @@ class Activity extends Model
                 $description
             );
         }
+        */
 
         return $description;
     }
