@@ -145,8 +145,19 @@ final class LoginController extends Controller
      */
     private function isApiRequest(Request $request): bool
     {
+        // If request has XSRF token, use session auth
         if ($request->header('X-XSRF-TOKEN')) {
             return false;
+        }
+        
+        // If request comes from stateful domain, use session auth
+        $origin = $request->headers->get('Origin');
+        $statefulDomains = config('sanctum.stateful');
+        
+        foreach ($statefulDomains as $domain) {
+            if ($origin === 'https://' . trim($domain) || $origin === 'http://' . trim($domain)) {
+                return false; // Use session auth for stateful domains
+            }
         }
         
         return $request->expectsJson() || $request->is('api/*');
