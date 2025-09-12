@@ -135,13 +135,24 @@ final class GoogleController extends Controller
     private function isApiRequest(Request $request): bool
     {
         // Google OAuth callback should always be treated as a web request
-        // because it comes from Google's redirect, not from frontend AJAX
         if ($request->is('api/auth/google/callback')) {
             return false;
         }
         
         if ($request->header('X-XSRF-TOKEN')) {
             return false;
+        }
+        
+        // Check for stateful domains (same logic as LoginController)
+        $origin = $request->headers->get('Origin');
+        $referer = $request->headers->get('Referer');
+        $statefulDomains = config('sanctum.stateful');
+        
+        foreach ($statefulDomains as $domain) {
+            if ($origin === 'https://' . trim($domain) || 
+                $referer && str_contains($referer, trim($domain))) {
+                return false;
+            }
         }
         
         return $request->expectsJson() || $request->is('api/*');
