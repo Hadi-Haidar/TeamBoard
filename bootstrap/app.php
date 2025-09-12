@@ -13,15 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Add CORS middleware to API routes
+        // Add Sanctum middleware to API routes (handles sessions automatically)
         $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class, // ← Move CORS FIRST
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
         
-        // Handle CORS
-        $middleware->use([
-            \Illuminate\Http\Middleware\HandleCors::class,
-        ]);
+        // Remove the duplicate CORS middleware from here
+        // $middleware->use([
+        //     \Illuminate\Http\Middleware\HandleCors::class,
+        // ]);
         
         // Alias middleware
         $middleware->alias([
@@ -31,3 +32,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+
+// CORS fix applied - middleware order corrected
