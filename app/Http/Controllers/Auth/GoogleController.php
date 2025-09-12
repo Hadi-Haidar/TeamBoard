@@ -134,28 +134,27 @@ final class GoogleController extends Controller
      */
     private function isApiRequest(Request $request): bool
     {
-        // Google OAuth callback should always be treated as a web request
-        if ($request->is('api/auth/google/callback')) {
-            return false;
-        }
-        
-        if ($request->header('X-XSRF-TOKEN')) {
-            return false;
-        }
-        
-        // Check for stateful domains (same logic as LoginController)
+        // Standard Laravel Sanctum approach for stateful domains
         $origin = $request->headers->get('Origin');
         $referer = $request->headers->get('Referer');
         $statefulDomains = config('sanctum.stateful');
         
+        // If request comes from a stateful domain, use session auth
         foreach ($statefulDomains as $domain) {
-            if ($origin === 'https://' . trim($domain) || 
-                $referer && str_contains($referer, trim($domain))) {
-                return false;
+            $domain = trim($domain);
+            if (($origin && str_contains($origin, $domain)) || 
+                ($referer && str_contains($referer, $domain))) {
+                return false; // Use session-based auth
             }
         }
         
-        return $request->expectsJson() || $request->is('api/*');
+        // For Google OAuth callback, always use session (since it redirects to frontend)
+        if ($request->is('api/auth/google/callback')) {
+            return false;
+        }
+        
+        // Otherwise, use token-based auth
+        return true;
     }
 
     /**
@@ -180,14 +179,11 @@ final class GoogleController extends Controller
      */
     private function webGoogleResponse(User $user, Request $request): RedirectResponse
     {
-        // For web requests, use session-based authentication (consistent with regular login)
-        Auth::login($user, true); // true for "remember me" functionality
-        $request->session()->regenerate();
+        // This SHOULD create a session:
+        Auth::login($user, true);              // ✅ Login user with session
+        $request->session()->regenerate();     // ✅ Create new session ID
+        $request->session()->save();           // ✅ Force save session
         
-        // Ensure session is saved immediately
-        $request->session()->save();
-        
-        // Redirect to frontend with success indicator
         return redirect(env('FRONTEND_URL') . '/dashboard?google_auth=success');
     }
 }
