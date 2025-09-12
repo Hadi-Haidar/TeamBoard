@@ -177,13 +177,31 @@ final class GoogleController extends Controller
     /**
      * Return web Google response with session and redirect to frontend.
      */
-    private function webGoogleResponse(User $user, Request $request): RedirectResponse
+    private function webGoogleResponse(User $user, Request $request): Response
     {
-        // This SHOULD create a session:
-        Auth::login($user, true);              // ✅ Login user with session
-        $request->session()->regenerate();     // ✅ Create new session ID
-        $request->session()->save();           // ✅ Force save session
+        // Create session
+        Auth::login($user, true);
+        $request->session()->regenerate();
+        $request->session()->save();
         
-        return redirect(env('FRONTEND_URL') . '/dashboard?google_auth=success');
+        // Use HTML with JavaScript redirect instead of Laravel redirect
+        $html = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Redirecting...</title>
+        </head>
+        <body>
+            <script>
+                // Redirect to frontend with success indicator
+                window.location.href = '" . env('FRONTEND_URL') . "/dashboard?google_auth=success';
+            </script>
+            <noscript>
+                <meta http-equiv='refresh' content='0;url=" . env('FRONTEND_URL') . "/dashboard?google_auth=success'>
+            </noscript>
+        </body>
+        </html>";
+        
+        return response($html);
     }
 }
