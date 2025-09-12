@@ -177,30 +177,21 @@ final class GoogleController extends Controller
     /**
      * Return web Google response with session and redirect to frontend.
      */
-    private function webGoogleResponse(User $user, Request $request): RedirectResponse
+    private function webGoogleResponse(User $user, Request $request): Response
     {
-        // Force session configuration to match your environment variables
-        config(['session.domain' => '.boardflow.space']);
-        config(['session.same_site' => 'none']);
-        config(['session.secure' => true]);
-        
-        // Create session with explicit configuration
+        // Use Sanctum's session handling (consistent with API routes)
         Auth::login($user, true);
         $request->session()->regenerate();
+        $request->session()->save();
         
-        // Force session to use correct domain
-        session()->save();
+        $html = "
+        <script>
+            console.log('Google OAuth - redirecting with session');
+            setTimeout(() => {
+                window.location.href = '" . env('FRONTEND_URL') . "/dashboard?google_auth=success';
+            }, 1000);
+        </script>";
         
-        // Add debug logging
-        Log::info('Google OAuth Session Created', [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'session_id' => session()->getId(),
-            'session_domain' => config('session.domain'),
-            'auth_check' => Auth::check(),
-            'auth_user' => Auth::user()?->name
-        ]);
-        
-        return redirect(env('FRONTEND_URL') . '/dashboard?google_auth=success');
+        return response($html);
     }
 }
