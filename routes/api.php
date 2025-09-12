@@ -48,7 +48,7 @@ Route::post('reset-password', [ResetPasswordController::class, 'reset']) ->name(
 // Google Authentication routes
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 // Google OAuth callback needs session middleware for web authentication
-Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::middleware(['web'])->get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 // User Profile routes (requires authentication)
 Route::middleware('auth:sanctum')->group(function () {
