@@ -22,8 +22,6 @@ return [
     'allowed_origins' => [
         'http://localhost:3000',      // Local development
         'http://127.0.0.1:3000',      // Local development  
-        'https://team-board-frontend-seven.vercel.app',  // Main production URL
-        'https://team-board-frontend-cvcdw02xq-hadis-projects-3e6c26c1.vercel.app', // Deployment URL
     ],
     
     'allowed_origins_patterns' => [
